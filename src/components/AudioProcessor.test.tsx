@@ -225,7 +225,7 @@ describe('AudioProcessor Component', () => {
             await user.click(nextButton);
 
             await waitFor(() => {
-                expect(screen.getByText('trimSection')).toBeInTheDocument();
+                expect(screen.getByText('trimModeLabel')).toBeInTheDocument();
                 expect(screen.getByText('startTimeLabel')).toBeInTheDocument();
                 expect(screen.getByText('durationLabel')).toBeInTheDocument();
             });
@@ -279,11 +279,9 @@ describe('AudioProcessor Component', () => {
             // Start+Duration mode is default, should show startTimeLabel
             expect(screen.getByText('startTimeLabel')).toBeInTheDocument();
 
-            // Switch to Duration+End mode
-            const durationEndRadio = screen.getByText('trimModeDurationEnd').closest('label')?.querySelector('input');
-            if (durationEndRadio) {
-                await user.click(durationEndRadio);
-            }
+            // Switch to Duration+End mode by clicking the segment button
+            const durationEndButton = screen.getByText('trimModeDurationEnd');
+            await user.click(durationEndButton);
 
             // Should now show endTimeLabel instead of startTimeLabel
             await waitFor(() => {

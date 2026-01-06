@@ -312,33 +312,35 @@ export default function AudioProcessor() {
                             )}
 
                             {(mode === 'trim') && (
-                                <div className="space-y-4 p-4 rounded-lg border bg-surface">
-                                    <h3 className="font-medium">{t('trimSection')}</h3>
-
-                                    {/* Trim Mode Selection */}
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">{t('trimModeLabel')}</label>
-                                        <div className="flex gap-4">
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input
-                                                    type="radio"
-                                                    name="trimMode"
-                                                    checked={trimMode === 'startDuration'}
-                                                    onChange={() => setTrimMode('startDuration')}
-                                                    className="w-4 h-4 text-primary"
-                                                />
-                                                <span className="text-sm">{t('trimModeStartDuration')}</span>
-                                            </label>
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input
-                                                    type="radio"
-                                                    name="trimMode"
-                                                    checked={trimMode === 'durationEnd'}
-                                                    onChange={() => setTrimMode('durationEnd')}
-                                                    className="w-4 h-4 text-primary"
-                                                />
-                                                <span className="text-sm">{t('trimModeDurationEnd')}</span>
-                                            </label>
+                                <div className="space-y-5 p-5 rounded-xl border bg-surface">
+                                    {/* Trim Mode Selection - Segment Control */}
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-medium text-muted">{t('trimModeLabel')}</label>
+                                        <div className="flex p-1 bg-surface2 rounded-lg">
+                                            <button
+                                                type="button"
+                                                onClick={() => setTrimMode('startDuration')}
+                                                className={cn(
+                                                    "flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200",
+                                                    trimMode === 'startDuration'
+                                                        ? "bg-surface text-primary shadow-sm border border-border"
+                                                        : "text-muted hover:text-text"
+                                                )}
+                                            >
+                                                {t('trimModeStartDuration')}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setTrimMode('durationEnd')}
+                                                className={cn(
+                                                    "flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200",
+                                                    trimMode === 'durationEnd'
+                                                        ? "bg-surface text-primary shadow-sm border border-border"
+                                                        : "text-muted hover:text-text"
+                                                )}
+                                            >
+                                                {t('trimModeDurationEnd')}
+                                            </button>
                                         </div>
                                     </div>
 
@@ -347,8 +349,7 @@ export default function AudioProcessor() {
                                         <>
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium">{t('startTimeLabel')}</label>
-                                                <Input type="text" placeholder="0" value={trimStart} onChange={(e) => setTrimStart(e.target.value)} />
-                                                <p className="text-xs text-muted">{t('startTimeHint')}</p>
+                                                <Input type="text" placeholder={t('startTimeHint')} value={trimStart} onChange={(e) => setTrimStart(e.target.value)} />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium">{t('durationLabel')}</label>
@@ -362,13 +363,11 @@ export default function AudioProcessor() {
                                         <>
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium">{t('durationFromEndLabel')}</label>
-                                                <Input type="text" placeholder={t('durationFromEndPlaceholder')} value={trimDuration} onChange={(e) => setTrimDuration(e.target.value)} />
-                                                <p className="text-xs text-muted">{t('durationFromEndHint')}</p>
+                                                <Input type="text" placeholder={t('durationFromEndHint')} value={trimDuration} onChange={(e) => setTrimDuration(e.target.value)} />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium">{t('endTimeLabel')}</label>
-                                                <Input type="text" placeholder="0" value={trimEnd} onChange={(e) => setTrimEnd(e.target.value)} />
-                                                <p className="text-xs text-muted">{t('endTimeHint')}</p>
+                                                <Input type="text" placeholder={t('endTimeHint')} value={trimEnd} onChange={(e) => setTrimEnd(e.target.value)} />
                                             </div>
                                         </>
                                     )}
