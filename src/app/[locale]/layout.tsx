@@ -5,8 +5,8 @@ import '../globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-    title: 'Local Audio Processor',
-    description: 'Batch process MP3 files locally using ffmpeg.wasm',
+    title: 'Audio Batch Processor',
+    description: 'Local batch processing via ffmpeg.wasm',
 }
 
 import { NextIntlClientProvider } from 'next-intl';

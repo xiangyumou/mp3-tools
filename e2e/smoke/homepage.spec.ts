@@ -13,26 +13,26 @@ test.describe('Homepage Smoke Tests', () => {
 
     test('page has correct title', async ({ page }) => {
         // Check the page title contains expected text
-        await expect(page).toHaveTitle(/Local Audio Processor/);
+        await expect(page).toHaveTitle(/Audio Batch Processor/);
     });
 
     test('main heading is visible', async ({ page }) => {
         // The audio processor title should be visible - use h1 specifically
-        const title = page.locator('h1:has-text("Local Audio Batch Processor")');
+        const title = page.locator('h1:has-text("Audio Batch Processor")');
         await expect(title).toBeVisible({ timeout: 10000 });
     });
 
     test('step indicator is visible after FFmpeg loads', async ({ page }) => {
         // Wait for FFmpeg to load and step indicator to appear
-        const stepIndicator = page.locator('text=Select Mode');
+        const stepIndicator = page.locator('text=Mode');
         await expect(stepIndicator.first()).toBeVisible({ timeout: 30000 });
     });
 
     test('mode selection cards are visible', async ({ page }) => {
         // Wait for mode selection to be available
-        await expect(page.locator('text=Concatenate Intro/Outro').first()).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Add Intro/Outro').first()).toBeVisible({ timeout: 30000 });
         await expect(page.locator('text=Trim Audio').first()).toBeVisible();
-        await expect(page.locator('text=Trim & Concatenate').first()).toBeVisible();
+        await expect(page.locator('text=Trim & Concat').first()).toBeVisible();
     });
 
     test('language switcher is visible', async ({ page }) => {
@@ -43,7 +43,7 @@ test.describe('Homepage Smoke Tests', () => {
 
     test('theme switcher is visible', async ({ page }) => {
         // Wait for page to load first
-        await expect(page.locator('h1:has-text("Local Audio Batch Processor")')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 10000 });
 
         // Theme switcher button should be in the top-right corner (has SVG icon)
         const themeButtons = page.locator('button:has(svg)');
