@@ -115,4 +115,72 @@ const Progress = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 )
 Progress.displayName = "Progress"
 
-export { Button, Input, Card, CardContent, CardHeader, CardTitle, Progress }
+// --- StepIndicator ---
+// Wizard progress indicator component
+export interface Step {
+    id: number
+    title: string
+}
+
+export interface StepIndicatorProps {
+    steps: Step[]
+    currentStep: number
+    className?: string
+}
+
+const StepIndicator: React.FC<StepIndicatorProps> = ({ steps, currentStep, className }) => {
+    return (
+        <div className={cn("flex items-center justify-center w-full mb-8", className)}>
+            {steps.map((step, index) => {
+                const isCompleted = step.id < currentStep
+                const isCurrent = step.id === currentStep
+                const isLast = index === steps.length - 1
+
+                return (
+                    <div key={step.id} className="flex items-center">
+                        {/* Step circle */}
+                        <div className="flex flex-col items-center">
+                            <div
+                                className={cn(
+                                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all",
+                                    isCompleted && "bg-primary border-primary text-primary-foreground",
+                                    isCurrent && "border-primary text-primary bg-transparent",
+                                    !isCompleted && !isCurrent && "border-muted text-muted bg-transparent"
+                                )}
+                            >
+                                {isCompleted ? (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                ) : (
+                                    step.id
+                                )}
+                            </div>
+                            <span
+                                className={cn(
+                                    "mt-2 text-xs font-medium max-w-[80px] text-center",
+                                    isCurrent ? "text-primary" : "text-muted"
+                                )}
+                            >
+                                {step.title}
+                            </span>
+                        </div>
+
+                        {/* Connector line */}
+                        {!isLast && (
+                            <div
+                                className={cn(
+                                    "w-12 h-0.5 mx-2 mb-6",
+                                    isCompleted ? "bg-primary" : "bg-border"
+                                )}
+                            />
+                        )}
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
+StepIndicator.displayName = "StepIndicator"
+
+export { Button, Input, Card, CardContent, CardHeader, CardTitle, Progress, StepIndicator }
