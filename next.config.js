@@ -5,6 +5,7 @@ const nextConfig = {
   images: {
     // unoptimized: true // Enabled image optimization
   },
+  output: 'standalone',
   async headers() {
     return [
       {
