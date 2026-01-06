@@ -6,6 +6,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { toBlobURL, fetchFile } from '@ffmpeg/util';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle, Progress, StepIndicator, Step } from '@/components/ui/simple-ui';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { Loader2, Download, FileAudio, Play, ChevronLeft, ChevronRight, RotateCcw, Upload, Scissors, Music, Combine } from 'lucide-react';
 
 type Mode = 'concat' | 'trim' | 'both';
@@ -45,29 +46,30 @@ export default function AudioProcessor() {
     ], [t]);
 
     useEffect(() => {
-        load();
-    }, []);
+        const load = async () => {
+            setIsLoading(true);
+            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+            const ffmpeg = ffmpegRef.current;
 
-    const load = async () => {
-        setIsLoading(true);
-        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-        const ffmpeg = ffmpegRef.current;
-
-        ffmpeg.on('log', ({ message }) => {
-            if (messageRef.current) messageRef.current.innerHTML = message;
-        });
-
-        try {
-            await ffmpeg.load({
-                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+            ffmpeg.on('log', ({ message }) => {
+                if (messageRef.current) messageRef.current.innerHTML = message;
             });
-            setLoaded(true);
-        } catch (e) {
-            console.error("Failed to load ffmpeg", e);
-        }
-        setIsLoading(false);
-    };
+
+            try {
+                await ffmpeg.load({
+                    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                });
+                setLoaded(true);
+            } catch (e) {
+                console.error("Failed to load ffmpeg", e);
+                toast.error(t('failedLoad'));
+            }
+            setIsLoading(false);
+        };
+
+        load();
+    }, [t]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
