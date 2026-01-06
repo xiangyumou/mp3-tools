@@ -17,8 +17,8 @@ test.describe('Homepage Smoke Tests', () => {
     });
 
     test('main heading is visible', async ({ page }) => {
-        // The audio processor title should be visible - use h1 specifically
-        const title = page.locator('h1:has-text("Audio Batch Processor")');
+        // The audio processor title is now in the Card header
+        const title = page.locator('text=Audio Batch Processor').first();
         await expect(title).toBeVisible({ timeout: 10000 });
     });
 
@@ -29,10 +29,9 @@ test.describe('Homepage Smoke Tests', () => {
     });
 
     test('mode selection cards are visible', async ({ page }) => {
-        // Wait for mode selection to be available
+        // Wait for mode selection to be available (only 2 modes exist)
         await expect(page.locator('text=Add Intro/Outro').first()).toBeVisible({ timeout: 30000 });
         await expect(page.locator('text=Trim Audio').first()).toBeVisible();
-        await expect(page.locator('text=Trim & Concat').first()).toBeVisible();
     });
 
     test('language switcher is visible', async ({ page }) => {
@@ -43,7 +42,7 @@ test.describe('Homepage Smoke Tests', () => {
 
     test('theme switcher is visible', async ({ page }) => {
         // Wait for page to load first
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 10000 });
 
         // Theme switcher button should be in the top-right corner (has SVG icon)
         const themeButtons = page.locator('button:has(svg)');
@@ -61,7 +60,7 @@ test.describe('Homepage Smoke Tests', () => {
 
         await page.goto('/en');
         // Wait for FFmpeg to load
-        await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Filter out expected errors (like FFmpeg loading issues in test env)
         const unexpectedErrors = consoleErrors.filter(

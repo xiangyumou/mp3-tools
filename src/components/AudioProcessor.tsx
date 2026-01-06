@@ -239,7 +239,7 @@ export default function AudioProcessor() {
                             <h2 className="text-xl font-semibold mb-2">{t('step1Heading')}</h2>
                             <p className="text-muted text-sm">{t('step1Description')}</p>
                         </div>
-                        <div className="grid gap-4 md:grid-cols-3">
+                        <div className="grid gap-6 md:grid-cols-2 max-w-2xl mx-auto">
                             <ModeCard
                                 modeType="concat"
                                 icon={Music}
