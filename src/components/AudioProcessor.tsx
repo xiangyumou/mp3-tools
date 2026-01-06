@@ -160,7 +160,7 @@ export default function AudioProcessor() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {!loaded && (
-                        <div className="flex items-center gap-2 text-yellow-600 bg-yellow-50 p-4 rounded-md">
+                        <div className="flex items-center gap-2 text-warning bg-surface2 border border-warning/20 p-4 rounded-md text-sm">
                             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                             <span>{isLoading ? 'Loading ffmpeg.wasm core...' : 'FFmpeg core not loaded'}</span>
                         </div>
@@ -228,7 +228,7 @@ export default function AudioProcessor() {
                     )}
 
                     {/* Logs */}
-                    <div className="text-xs text-muted-foreground font-mono h-24 overflow-y-auto bg-slate-50 p-2 rounded">
+                    <div className="text-xs text-muted font-mono h-24 overflow-y-auto bg-surface2 p-2 rounded-lg border">
                         <p ref={messageRef}>Logs will appear here...</p>
                     </div>
 
@@ -238,8 +238,8 @@ export default function AudioProcessor() {
                             <h3 className="font-medium">Processed Files</h3>
                             <div className="grid gap-2 max-h-60 overflow-y-auto">
                                 {processedFiles.map((f, i) => (
-                                    <div key={i} className="flex items-center justify-between bg-slate-50 p-2 rounded">
-                                        <span className="text-sm truncate max-w-[300px]">{f.name}</span>
+                                    <div key={i} className="flex items-center justify-between bg-surface2 p-2 rounded-lg border">
+                                        <span className="text-sm truncate max-w-[300px] text-text">{f.name}</span>
                                         <div className="flex gap-2">
                                             <audio controls src={f.url} className="h-8" />
                                             <a href={f.url} download={f.name}>
