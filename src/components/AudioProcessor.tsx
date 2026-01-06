@@ -78,7 +78,6 @@ export default function AudioProcessor() {
     useEffect(() => {
         const load = async () => {
             setIsLoading(true);
-            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
             const ffmpeg = ffmpegRef.current;
 
             ffmpeg.on('log', ({ message }) => {
@@ -86,6 +85,8 @@ export default function AudioProcessor() {
             });
 
             try {
+                // Load from local public directory
+                const baseURL = window.location.origin + '/ffmpeg';
                 await ffmpeg.load({
                     coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
                     wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),

@@ -31,6 +31,6 @@ export default [
         },
     },
     {
-        ignores: ["node_modules/", ".next/", "e2e/", "*.config.*"],
+        ignores: ["node_modules/", ".next/", "e2e/", "*.config.*", "public/ffmpeg/"],
     },
 ];
