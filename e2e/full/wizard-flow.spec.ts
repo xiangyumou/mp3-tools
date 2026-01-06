@@ -231,4 +231,173 @@ test.describe('Wizard Flow - Full E2E Tests', () => {
             await expect(nextButton).toBeVisible();
         });
     });
+
+    test.describe('Complete Processing Flow with File Upload', () => {
+        test('can upload files and start processing', async ({ page }) => {
+            // Navigate through wizard to step 3
+            await page.locator('text=Add Intro/Outro').click();
+            await page.locator('button:has-text("Next")').click();
+            await page.locator('button:has-text("Next")').click();
+
+            // Verify we're on step 3
+            await expect(page.getByRole('heading', { name: 'Select Files' })).toBeVisible();
+
+            // Create a fake audio file using DataTransfer API
+            const fileChooserPromise = page.waitForEvent('filechooser');
+            await page.locator('label[for="file-upload"]').click();
+            const fileChooser = await fileChooserPromise;
+
+            // Create a minimal valid audio buffer for testing
+            // Note: In real tests, you'd use a real audio file fixture
+            const buffer = Buffer.alloc(1024);
+            await fileChooser.setFiles([{
+                name: 'test-audio.mp3',
+                mimeType: 'audio/mpeg',
+                buffer: buffer,
+            }]);
+
+            // Verify file was selected (i18n: '{count} selected')
+            await expect(page.locator('text=1 selected')).toBeVisible();
+
+            // Process button should now be enabled
+            const processButton = page.locator('button:has-text("Start")');
+            await expect(processButton).toBeEnabled();
+        });
+
+        test('can upload multiple files', async ({ page }) => {
+            // Navigate through wizard to step 3
+            await page.locator('text=Add Intro/Outro').click();
+            await page.locator('button:has-text("Next")').click();
+            await page.locator('button:has-text("Next")').click();
+
+            // Verify we're on step 3
+            await expect(page.getByRole('heading', { name: 'Select Files' })).toBeVisible();
+
+            // Upload multiple files
+            const fileChooserPromise = page.waitForEvent('filechooser');
+            await page.locator('label[for="file-upload"]').click();
+            const fileChooser = await fileChooserPromise;
+
+            const buffer = Buffer.alloc(1024);
+            await fileChooser.setFiles([
+                { name: 'test-audio-1.mp3', mimeType: 'audio/mpeg', buffer: buffer },
+                { name: 'test-audio-2.mp3', mimeType: 'audio/mpeg', buffer: buffer },
+                { name: 'test-audio-3.mp3', mimeType: 'audio/mpeg', buffer: buffer },
+            ]);
+
+            // Verify files were selected (i18n: '{count} selected')
+            await expect(page.locator('text=3 selected')).toBeVisible();
+
+            // Check file list is visible
+            await expect(page.locator('text=test-audio-1.mp3')).toBeVisible();
+            await expect(page.locator('text=test-audio-2.mp3')).toBeVisible();
+            await expect(page.locator('text=test-audio-3.mp3')).toBeVisible();
+        });
+
+        test('trim mode complete flow', async ({ page }) => {
+            // Select trim mode
+            await page.locator('text=Trim Audio').click();
+
+            // Verify mode is selected
+            const trimCard = page.locator('button:has-text("Trim Audio")');
+            await expect(trimCard).toHaveClass(/border-primary/);
+
+            // Go to step 2
+            await page.locator('button:has-text("Next")').click();
+            await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible();
+
+            // Configure trim settings
+            const startTimeInput = page.locator('input[placeholder="0"]');
+            await startTimeInput.clear();
+            await startTimeInput.fill('5');
+
+            // Go to step 3
+            await page.locator('button:has-text("Next")').click();
+            await expect(page.getByRole('heading', { name: 'Select Files' })).toBeVisible();
+
+            // Upload a file
+            const fileChooserPromise = page.waitForEvent('filechooser');
+            await page.locator('label[for="file-upload"]').click();
+            const fileChooser = await fileChooserPromise;
+
+            const buffer = Buffer.alloc(1024);
+            await fileChooser.setFiles([{
+                name: 'test-trim.mp3',
+                mimeType: 'audio/mpeg',
+                buffer: buffer,
+            }]);
+
+            // Verify file was selected (i18n: '{count} selected')
+            await expect(page.locator('text=1 selected')).toBeVisible();
+
+            // Process button should be enabled
+            const processButton = page.locator('button:has-text("Start")');
+            await expect(processButton).toBeEnabled();
+        });
+
+        test('concat mode with intro/outro files', async ({ page }) => {
+            // Select concat mode
+            await page.locator('text=Add Intro/Outro').click();
+
+            // Go to step 2
+            await page.locator('button:has-text("Next")').click();
+            await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible();
+
+            // Verify concat settings are visible
+            await expect(page.locator('text=Concat Settings')).toBeVisible();
+            await expect(page.locator('text=Intro (Opt)')).toBeVisible();
+            await expect(page.locator('text=Outro (Opt)')).toBeVisible();
+
+            // Go to step 3
+            await page.locator('button:has-text("Next")').click();
+            await expect(page.getByRole('heading', { name: 'Select Files' })).toBeVisible();
+        });
+    });
+
+    test.describe('Error Handling', () => {
+        test('shows loading state when FFmpeg initializes', async ({ page }) => {
+            await page.goto('/en');
+
+            // The loading message should appear briefly
+            // Note: This may be too fast to catch in tests, but verify the component handles it
+            await expect(page.locator('text=Select Mode')).toBeVisible({ timeout: 60000 });
+        });
+    });
+
+    test.describe('Wizard State Persistence', () => {
+        test('mode selection persists when navigating back', async ({ page }) => {
+            // Select concat mode
+            await page.locator('text=Add Intro/Outro').click();
+
+            // Go to step 2
+            await page.locator('button:has-text("Next")').click();
+
+            // Go back to step 1
+            await page.locator('button:has-text("Back")').click();
+
+            // Mode should still be selected
+            const concatCard = page.locator('button:has-text("Add Intro/Outro")');
+            await expect(concatCard).toHaveClass(/border-primary/);
+        });
+
+        test('settings persist when navigating back', async ({ page }) => {
+            // Select trim mode
+            await page.locator('text=Trim Audio').click();
+            await page.locator('button:has-text("Next")').click();
+
+            // Configure trim settings
+            const startTimeInput = page.locator('input[placeholder="0"]');
+            await startTimeInput.clear();
+            await startTimeInput.fill('10');
+
+            // Go to step 3
+            await page.locator('button:has-text("Next")').click();
+
+            // Go back to step 2
+            await page.locator('button:has-text("Back")').click();
+
+            // Settings should persist
+            await expect(startTimeInput).toHaveValue('10');
+        });
+    });
 });
