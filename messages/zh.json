@@ -1,0 +1,28 @@
+{
+    "AudioProcessor": {
+        "title": "本地音频批量处理器",
+        "description": "完全在浏览器中使用 FFmpeg WASM 处理您的音频文件。无需上传，安全且快速。",
+        "cardTitle": "基础 FFmpeg 音频处理器",
+        "loadingCore": "正在加载 ffmpeg.wasm 核心...",
+        "coreNotLoaded": "FFmpeg 核心未加载",
+        "concatMode": "拼接片头/片尾",
+        "trimMode": "裁剪音频",
+        "bothMode": "裁剪并拼接",
+        "concatenationSection": "拼接设置",
+        "introFileLabel": "片头文件 (可选)",
+        "outroFileLabel": "片尾文件 (可选)",
+        "trimSection": "裁剪设置",
+        "startTimeLabel": "开始时间 (秒)",
+        "durationLabel": "持续时间 (秒，留空则到结尾)",
+        "durationPlaceholder": "例如 10",
+        "targetFilesLabel": "目标 MP3 文件 (批量)",
+        "processButton": "处理",
+        "processing": "处理中...",
+        "logsPlaceholder": "日志将显示在这里...",
+        "processedFilesTitle": "已处理文件",
+        "failedLoad": "加载 ffmpeg 失败"
+    },
+    "LanguageSwitcher": {
+        "label": "语言"
+    }
+}

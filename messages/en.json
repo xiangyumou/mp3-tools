@@ -1,0 +1,28 @@
+{
+    "AudioProcessor": {
+        "title": "Local Audio Batch Processor",
+        "description": "Process your audio files entirely in your browser using FFmpeg WASM. No uploads, secure and fast.",
+        "cardTitle": "Basic FFmpeg Audio Processor",
+        "loadingCore": "Loading ffmpeg.wasm core...",
+        "coreNotLoaded": "FFmpeg core not loaded",
+        "concatMode": "Concatenate Intro/Outro",
+        "trimMode": "Trim Audio",
+        "bothMode": "Trim & Concat",
+        "concatenationSection": "Concatenation",
+        "introFileLabel": "Intro File (Optional)",
+        "outroFileLabel": "Outro File (Optional)",
+        "trimSection": "Trim",
+        "startTimeLabel": "Start Time (seconds)",
+        "durationLabel": "Duration (seconds, empty for end)",
+        "durationPlaceholder": "e.g. 10",
+        "targetFilesLabel": "Target MP3 Files (Batch)",
+        "processButton": "Process",
+        "processing": "Processing...",
+        "logsPlaceholder": "Logs will appear here...",
+        "processedFilesTitle": "Processed Files",
+        "failedLoad": "Failed to load ffmpeg"
+    },
+    "LanguageSwitcher": {
+        "label": "Language"
+    }
+}

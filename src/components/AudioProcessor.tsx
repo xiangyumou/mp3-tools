@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { useState, useRef, useEffect } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { toBlobURL, fetchFile } from '@ffmpeg/util';
@@ -8,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { Loader2, Upload, Download, FileAudio, Play } from 'lucide-react';
 
 export default function AudioProcessor() {
+    const t = useTranslations('AudioProcessor');
     const [loaded, setLoaded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const ffmpegRef = useRef(new FFmpeg());
@@ -55,7 +58,7 @@ export default function AudioProcessor() {
             setLoaded(true);
         } catch (e) {
             console.error("Failed to load ffmpeg", e);
-            setLog("Failed to load ffmpeg core. Check internet or SharedArrayBuffer support.");
+            setLog(t('failedLoad'));
         }
         setIsLoading(false);
     };
@@ -155,35 +158,35 @@ export default function AudioProcessor() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <FileAudio className="w-6 h-6" />
-                        Basic FFmpeg Audio Processor
+                        {t('cardTitle')}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {!loaded && (
                         <div className="flex items-center gap-2 text-warning bg-surface2 border border-warning/20 p-4 rounded-md text-sm">
                             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                            <span>{isLoading ? 'Loading ffmpeg.wasm core...' : 'FFmpeg core not loaded'}</span>
+                            <span>{isLoading ? t('loadingCore') : t('coreNotLoaded')}</span>
                         </div>
                     )}
 
                     {/* Mode Selection */}
                     <div className="flex gap-4">
-                        <Button variant={mode === 'concat' ? 'default' : 'outline'} onClick={() => setMode('concat')}>Concatenate Intro/Outro</Button>
-                        <Button variant={mode === 'trim' ? 'default' : 'outline'} onClick={() => setMode('trim')}>Trim Audio</Button>
-                        <Button variant={mode === 'both' ? 'default' : 'outline'} onClick={() => setMode('both')}>Trim & Concat</Button>
+                        <Button variant={mode === 'concat' ? 'default' : 'outline'} onClick={() => setMode('concat')}>{t('concatMode')}</Button>
+                        <Button variant={mode === 'trim' ? 'default' : 'outline'} onClick={() => setMode('trim')}>{t('trimMode')}</Button>
+                        <Button variant={mode === 'both' ? 'default' : 'outline'} onClick={() => setMode('both')}>{t('bothMode')}</Button>
                     </div>
 
                     {/* Configuration */}
                     <div className="grid gap-4 md:grid-cols-2">
                         {(mode === 'concat' || mode === 'both') && (
                             <div className="space-y-4 border p-4 rounded-md">
-                                <h3 className="font-medium">Concatenation</h3>
+                                <h3 className="font-medium">{t('concatenationSection')}</h3>
                                 <div>
-                                    <label className="text-sm font-medium">Intro File (Optional)</label>
+                                    <label className="text-sm font-medium">{t('introFileLabel')}</label>
                                     <Input type="file" accept="audio/*" onChange={(e) => setIntroFile(e.target.files?.[0] || null)} />
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium">Outro File (Optional)</label>
+                                    <label className="text-sm font-medium">{t('outroFileLabel')}</label>
                                     <Input type="file" accept="audio/*" onChange={(e) => setOutroFile(e.target.files?.[0] || null)} />
                                 </div>
                             </div>
@@ -191,14 +194,14 @@ export default function AudioProcessor() {
 
                         {(mode === 'trim' || mode === 'both') && (
                             <div className="space-y-4 border p-4 rounded-md">
-                                <h3 className="font-medium">Trim</h3>
+                                <h3 className="font-medium">{t('trimSection')}</h3>
                                 <div>
-                                    <label className="text-sm font-medium">Start Time (seconds)</label>
+                                    <label className="text-sm font-medium">{t('startTimeLabel')}</label>
                                     <Input type="text" placeholder="0" value={trimStart} onChange={(e) => setTrimStart(e.target.value)} />
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium">Duration (seconds, empty for end)</label>
-                                    <Input type="text" placeholder="e.g. 10" value={trimDuration} onChange={(e) => setTrimDuration(e.target.value)} />
+                                    <label className="text-sm font-medium">{t('durationLabel')}</label>
+                                    <Input type="text" placeholder={t('durationPlaceholder')} value={trimDuration} onChange={(e) => setTrimDuration(e.target.value)} />
                                 </div>
                             </div>
                         )}
@@ -206,12 +209,12 @@ export default function AudioProcessor() {
 
                     {/* Input Files */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Target MP3 Files (Batch)</label>
+                        <label className="text-sm font-medium">{t('targetFilesLabel')}</label>
                         <div className="flex gap-2">
                             <Input type="file" multiple accept="audio/*" onChange={handleFileChange} className="cursor-pointer" />
                             <Button disabled={!loaded || files.length === 0 || isProcessing} onClick={processFiles}>
                                 {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <Play className="mr-2 w-4 h-4" />}
-                                Process {files.length > 0 && `(${files.length})`}
+                                {t('processButton')} {files.length > 0 && `(${files.length})`}
                             </Button>
                         </div>
                     </div>
@@ -220,7 +223,7 @@ export default function AudioProcessor() {
                     {isProcessing && (
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span>Processing...</span>
+                                <span>{t('processing')}</span>
                                 <span>{progress}%</span>
                             </div>
                             <Progress value={progress} />
@@ -229,13 +232,13 @@ export default function AudioProcessor() {
 
                     {/* Logs */}
                     <div className="text-xs text-muted font-mono h-24 overflow-y-auto bg-surface2 p-2 rounded-lg border">
-                        <p ref={messageRef}>Logs will appear here...</p>
+                        <p ref={messageRef}>{t('logsPlaceholder')}</p>
                     </div>
 
                     {/* Output */}
                     {processedFiles.length > 0 && (
                         <div className="space-y-2 mt-4 pt-4 border-t">
-                            <h3 className="font-medium">Processed Files</h3>
+                            <h3 className="font-medium">{t('processedFilesTitle')}</h3>
                             <div className="grid gap-2 max-h-60 overflow-y-auto">
                                 {processedFiles.map((f, i) => (
                                     <div key={i} className="flex items-center justify-between bg-surface2 p-2 rounded-lg border">
