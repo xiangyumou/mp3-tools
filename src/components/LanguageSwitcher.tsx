@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from './ui/simple-ui';
 import { Globe } from 'lucide-react';
@@ -9,7 +9,6 @@ export default function LanguageSwitcher() {
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
-    const t = useTranslations('LanguageSwitcher');
 
     const toggleLocale = () => {
         const nextLocale = locale === 'en' ? 'zh' : 'en';

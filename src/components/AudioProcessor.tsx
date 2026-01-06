@@ -176,8 +176,8 @@ export default function AudioProcessor() {
             results.push({ name: `processed_${file.name}`, url });
 
             await ffmpeg.deleteFile(inputName);
-            try { await ffmpeg.deleteFile(outputName); } catch { }
-            try { if (currentInput.startsWith('trimmed')) await ffmpeg.deleteFile(currentInput); } catch { }
+            try { await ffmpeg.deleteFile(outputName); } catch { /* Ignore cleanup errors */ }
+            try { if (currentInput.startsWith('trimmed')) await ffmpeg.deleteFile(currentInput); } catch { /* Ignore cleanup errors */ }
 
             setProgress(Math.round(((i + 1) / total) * 100));
         }
