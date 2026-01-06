@@ -7,9 +7,9 @@ import { toBlobURL, fetchFile } from '@ffmpeg/util';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle, Progress, StepIndicator, Step } from '@/components/ui/simple-ui';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Loader2, Download, FileAudio, Play, ChevronLeft, ChevronRight, RotateCcw, Upload, Scissors, Music, Combine } from 'lucide-react';
+import { Loader2, Download, FileAudio, Play, ChevronLeft, ChevronRight, RotateCcw, Upload, Scissors, Music } from 'lucide-react';
 
-type Mode = 'concat' | 'trim' | 'both';
+type Mode = 'concat' | 'trim';
 
 
 
@@ -113,7 +113,7 @@ export default function AudioProcessor() {
             case 1: return mode !== null;
             case 2:
                 // Validation for trim mode
-                if (mode === 'trim' || mode === 'both') {
+                if (mode === 'trim') {
                     // It's technically valid to have empty duration (rest of file), 
                     // but at least one field should probably be touched or it's just a copy.
                     // For now, adhere to permissive loose, but check files if needed?
@@ -180,7 +180,7 @@ export default function AudioProcessor() {
             let currentInput = inputName;
 
             // TRIM FIRST if enabled
-            if (mode === 'trim' || mode === 'both') {
+            if (mode === 'trim') {
                 const trimmedName = `trimmed_${i}.mp3`;
                 const ss = trimStart || '0';
                 const dur = trimDuration;
@@ -195,7 +195,7 @@ export default function AudioProcessor() {
             }
 
             // CONCAT
-            if (mode === 'concat' || mode === 'both') {
+            if (mode === 'concat') {
                 const listName = `list_${i}.txt`;
                 let fileList = '';
 
@@ -256,14 +256,7 @@ export default function AudioProcessor() {
                                 currentMode={mode}
                                 onSelect={setMode}
                             />
-                            <ModeCard
-                                modeType="both"
-                                icon={Combine}
-                                title={t('bothMode')}
-                                description={t('bothModeDesc')}
-                                currentMode={mode}
-                                onSelect={setMode}
-                            />
+
                         </div>
                     </div>
                 );
@@ -275,7 +268,7 @@ export default function AudioProcessor() {
                             <h2 className="text-xl font-semibold mb-2">{t('step2Heading')}</h2>
                         </div>
                         <div className="max-w-lg mx-auto space-y-6">
-                            {(mode === 'concat' || mode === 'both') && (
+                            {(mode === 'concat') && (
                                 <div className="space-y-4 p-4 rounded-lg border bg-surface">
                                     <h3 className="font-medium">{t('concatenationSection')}</h3>
                                     <div className="space-y-2">
@@ -291,7 +284,7 @@ export default function AudioProcessor() {
                                 </div>
                             )}
 
-                            {(mode === 'trim' || mode === 'both') && (
+                            {(mode === 'trim') && (
                                 <div className="space-y-4 p-4 rounded-lg border bg-surface">
                                     <h3 className="font-medium">{t('trimSection')}</h3>
                                     <div className="space-y-2">

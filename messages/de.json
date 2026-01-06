@@ -16,8 +16,6 @@
         "concatModeDesc": "Audio anfügen",
         "trimMode": "Schneiden",
         "trimModeDesc": "Zeitraum schneiden",
-        "bothMode": "Schneiden & Anfügen",
-        "bothModeDesc": "Erst schneiden, dann anfügen",
         "step2Heading": "Einstellungen",
         "concatenationSection": "Verkettung",
         "introFileLabel": "Intro (Opt)",

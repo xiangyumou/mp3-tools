@@ -75,7 +75,6 @@ describe('AudioProcessor Component', () => {
                 expect(screen.getByText('step1Heading')).toBeInTheDocument();
                 expect(screen.getByText('concatMode')).toBeInTheDocument();
                 expect(screen.getByText('trimMode')).toBeInTheDocument();
-                expect(screen.getByText('bothMode')).toBeInTheDocument();
             });
         });
 
@@ -120,16 +119,7 @@ describe('AudioProcessor Component', () => {
                 });
             }
 
-            // Select both mode
-            const bothButton = screen.getByText('bothMode').closest('button');
-            if (bothButton) {
-                await user.click(bothButton);
-                // Re-query to get updated button after state change
-                await waitFor(() => {
-                    const updatedBothButton = screen.getByText('bothMode').closest('button');
-                    expect(updatedBothButton).toHaveClass('border-primary');
-                });
-            }
+
         });
     });
 
@@ -241,29 +231,7 @@ describe('AudioProcessor Component', () => {
             });
         });
 
-        it('shows both settings when both mode is selected', async () => {
-            const user = userEvent.setup();
-            render(<AudioProcessor />);
 
-            await waitFor(() => {
-                expect(screen.getByText('bothMode')).toBeInTheDocument();
-            });
-
-            // Select both mode
-            const bothButton = screen.getByText('bothMode').closest('button');
-            if (bothButton) {
-                await user.click(bothButton);
-            }
-
-            // Go to step 2
-            const nextButton = screen.getByRole('button', { name: /nextButton/i });
-            await user.click(nextButton);
-
-            await waitFor(() => {
-                expect(screen.getByText('concatenationSection')).toBeInTheDocument();
-                expect(screen.getByText('trimSection')).toBeInTheDocument();
-            });
-        });
     });
 
     describe('Step 3: File Selection', () => {

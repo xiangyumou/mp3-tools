@@ -16,8 +16,6 @@
         "concatModeDesc": "前后添加音频",
         "trimMode": "裁剪音频",
         "trimModeDesc": "指定时间范围",
-        "bothMode": "裁剪并拼接",
-        "bothModeDesc": "先裁后接",
         "step2Heading": "配置设置",
         "concatenationSection": "拼接设置",
         "introFileLabel": "片头(选填)",

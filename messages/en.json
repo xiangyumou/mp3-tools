@@ -16,8 +16,6 @@
         "concatModeDesc": "Append audio to start/end",
         "trimMode": "Trim Audio",
         "trimModeDesc": "Cut to time range",
-        "bothMode": "Trim & Concat",
-        "bothModeDesc": "Trim then add intro/outro",
         "step2Heading": "Settings",
         "concatenationSection": "Concat Settings",
         "introFileLabel": "Intro (Opt)",
