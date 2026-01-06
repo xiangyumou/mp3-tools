@@ -111,7 +111,17 @@ export default function AudioProcessor() {
     const canProceed = (): boolean => {
         switch (currentStep) {
             case 1: return mode !== null;
-            case 2: return true; // Configuration is optional
+            case 2:
+                // Validation for trim mode
+                if (mode === 'trim' || mode === 'both') {
+                    // It's technically valid to have empty duration (rest of file), 
+                    // but at least one field should probably be touched or it's just a copy.
+                    // For now, adhere to permissive loose, but check files if needed?
+                    // Actually, let's keep it permissive as requested ("is everything filled out that NEEDS to be").
+                    // A user CAN leave things empty for default behavior.
+                    return true;
+                }
+                return true;
             case 3: return files.length > 0;
             default: return true;
         }
@@ -318,7 +328,10 @@ export default function AudioProcessor() {
                                 {files.length > 0 ? (
                                     <span className="text-primary font-medium">{t('filesSelected', { count: files.length })}</span>
                                 ) : (
-                                    <span className="text-muted">{t('dropzoneText')}</span>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <span className="text-muted">{t('dropzoneText')}</span>
+                                        <Button type="button" variant="secondary" size="sm">{t('selectFileButton')}</Button>
+                                    </div>
                                 )}
                                 <input
                                     id="file-upload"
@@ -383,7 +396,10 @@ export default function AudioProcessor() {
                                         <div className="flex gap-2 items-center">
                                             <audio controls src={f.url} className="h-8" />
                                             <a href={f.url} download={f.name}>
-                                                <Button size="sm" variant="outline"><Download className="w-4 h-4" /></Button>
+                                                <Button size="sm" variant="outline">
+                                                    <Download className="w-4 h-4 mr-2" />
+                                                    {t('download')}
+                                                </Button>
                                             </a>
                                         </div>
                                     </div>
