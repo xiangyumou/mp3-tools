@@ -45,10 +45,14 @@ describe('AudioProcessor Component', () => {
             });
         });
 
-        it('displays loading state while FFmpeg loads', () => {
+        it('displays loading state while FFmpeg loads', async () => {
             render(<AudioProcessor />);
             // Should show loading indicator initially
             expect(screen.getByText('loadingCore')).toBeInTheDocument();
+            // Wait for it to settle to avoid act warnings
+            await waitFor(() => {
+                expect(screen.getByText('step1Title')).toBeInTheDocument();
+            });
         });
     });
 
