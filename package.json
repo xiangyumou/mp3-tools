@@ -1,17 +1,12 @@
 {
   "name": "maga-audio-processor",
   "version": "0.1.0",
-  "main": "electron/main.js",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "electron:dev": "concurrently \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron:build": "next build && electron-builder",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "lint": "next lint"
   },
   "dependencies": {
     "@ffmpeg/core": "^0.12.10",
@@ -23,7 +18,6 @@
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.4.17",
     "clsx": "^2.1.0",
-    "electron-serve": "^3.0.0",
     "lucide-react": "^0.330.0",
     "next": "^14.1.0",
     "postcss": "^8.4.35",
@@ -34,41 +28,5 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.3.3"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2",
-    "cross-env": "^7.0.3",
-    "electron": "^28.2.1",
-    "electron-builder": "^24.9.1",
-    "wait-on": "^7.2.0"
-  },
-  "build": {
-    "appId": "com.maga.audio-processor",
-    "productName": "Local Audio Processor",
-    "files": [
-      "out/**/*",
-      "electron/**/*",
-      "package.json"
-    ],
-    "directories": {
-      "output": "dist"
-    },
-    "mac": {
-      "category": "public.app-category.utilities",
-      "target": [
-        "dmg",
-        "zip"
-      ]
-    },
-    "win": {
-      "target": [
-        "nsis"
-      ]
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ]
-    }
-  }
+  "devDependencies": {}
 }
