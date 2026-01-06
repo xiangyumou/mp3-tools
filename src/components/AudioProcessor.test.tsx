@@ -231,6 +231,67 @@ describe('AudioProcessor Component', () => {
             });
         });
 
+        it('shows trim mode selection radio buttons', async () => {
+            const user = userEvent.setup();
+            render(<AudioProcessor />);
+
+            await waitFor(() => {
+                expect(screen.getByText('trimMode')).toBeInTheDocument();
+            });
+
+            // Select trim mode
+            const trimButton = screen.getByText('trimMode').closest('button');
+            if (trimButton) {
+                await user.click(trimButton);
+            }
+
+            // Go to step 2
+            const nextButton = screen.getByRole('button', { name: /nextButton/i });
+            await user.click(nextButton);
+
+            await waitFor(() => {
+                expect(screen.getByText('trimModeLabel')).toBeInTheDocument();
+                expect(screen.getByText('trimModeStartDuration')).toBeInTheDocument();
+                expect(screen.getByText('trimModeDurationEnd')).toBeInTheDocument();
+            });
+        });
+
+        it('shows different fields based on trim mode selection', async () => {
+            const user = userEvent.setup();
+            render(<AudioProcessor />);
+
+            await waitFor(() => {
+                expect(screen.getByText('trimMode')).toBeInTheDocument();
+            });
+
+            // Select trim mode and go to step 2
+            const trimButton = screen.getByText('trimMode').closest('button');
+            if (trimButton) {
+                await user.click(trimButton);
+            }
+            const nextButton = screen.getByRole('button', { name: /nextButton/i });
+            await user.click(nextButton);
+
+            await waitFor(() => {
+                expect(screen.getByText('trimModeLabel')).toBeInTheDocument();
+            });
+
+            // Start+Duration mode is default, should show startTimeLabel
+            expect(screen.getByText('startTimeLabel')).toBeInTheDocument();
+
+            // Switch to Duration+End mode
+            const durationEndRadio = screen.getByText('trimModeDurationEnd').closest('label')?.querySelector('input');
+            if (durationEndRadio) {
+                await user.click(durationEndRadio);
+            }
+
+            // Should now show endTimeLabel instead of startTimeLabel
+            await waitFor(() => {
+                expect(screen.getByText('endTimeLabel')).toBeInTheDocument();
+                expect(screen.getByText('durationFromEndLabel')).toBeInTheDocument();
+            });
+        });
+
 
     });
 

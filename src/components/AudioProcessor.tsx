@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Loader2, Download, FileAudio, Play, ChevronLeft, ChevronRight, RotateCcw, Upload, Scissors, Music } from 'lucide-react';
 
 type Mode = 'concat' | 'trim';
+type TrimMode = 'startDuration' | 'durationEnd';
 
 
 
@@ -59,6 +60,8 @@ export default function AudioProcessor() {
     const [outroFile, setOutroFile] = useState<File | null>(null);
     const [trimStart, setTrimStart] = useState<string>('0');
     const [trimDuration, setTrimDuration] = useState<string>('');
+    const [trimEnd, setTrimEnd] = useState<string>('');
+    const [trimMode, setTrimMode] = useState<TrimMode>('startDuration');
     const [mode, setMode] = useState<Mode | null>(null);
 
     // Processing state
@@ -150,6 +153,8 @@ export default function AudioProcessor() {
         setOutroFile(null);
         setTrimStart('0');
         setTrimDuration('');
+        setTrimEnd('');
+        setTrimMode('startDuration');
         setProgress(0);
         setProcessedFiles([]);
         setCurrentFileIndex(0);
@@ -182,11 +187,33 @@ export default function AudioProcessor() {
             // TRIM FIRST if enabled
             if (mode === 'trim') {
                 const trimmedName = `trimmed_${i}.mp3`;
-                const ss = trimStart || '0';
-                const dur = trimDuration;
 
-                const args = ['-i', currentInput, '-ss', ss];
-                if (dur) args.push('-t', dur);
+                // Build FFmpeg args based on trim mode
+                const args = ['-i', currentInput];
+
+                if (trimMode === 'startDuration') {
+                    // Mode 1: Start time + Duration
+                    // No duration → trim from start to end of file
+                    const ss = trimStart || '0';
+                    args.push('-ss', ss);
+                    if (trimDuration) {
+                        args.push('-t', trimDuration);
+                    }
+                } else {
+                    // Mode 2: Duration + End time (durationEnd)
+                    // No duration → trim from beginning to end time
+                    if (trimDuration) {
+                        // Calculate start time: end - duration
+                        const endSec = parseFloat(trimEnd) || 0;
+                        const durSec = parseFloat(trimDuration) || 0;
+                        const startSec = Math.max(0, endSec - durSec);
+                        args.push('-ss', startSec.toString());
+                    }
+                    if (trimEnd) {
+                        args.push('-to', trimEnd);
+                    }
+                }
+
                 args.push('-c', 'copy', trimmedName);
 
                 await ffmpeg.exec(args);
@@ -287,15 +314,64 @@ export default function AudioProcessor() {
                             {(mode === 'trim') && (
                                 <div className="space-y-4 p-4 rounded-lg border bg-surface">
                                     <h3 className="font-medium">{t('trimSection')}</h3>
+
+                                    {/* Trim Mode Selection */}
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium">{t('startTimeLabel')}</label>
-                                        <Input type="text" placeholder="0" value={trimStart} onChange={(e) => setTrimStart(e.target.value)} />
-                                        <p className="text-xs text-muted">{t('startTimeHint')}</p>
+                                        <label className="text-sm font-medium">{t('trimModeLabel')}</label>
+                                        <div className="flex gap-4">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="trimMode"
+                                                    checked={trimMode === 'startDuration'}
+                                                    onChange={() => setTrimMode('startDuration')}
+                                                    className="w-4 h-4 text-primary"
+                                                />
+                                                <span className="text-sm">{t('trimModeStartDuration')}</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="trimMode"
+                                                    checked={trimMode === 'durationEnd'}
+                                                    onChange={() => setTrimMode('durationEnd')}
+                                                    className="w-4 h-4 text-primary"
+                                                />
+                                                <span className="text-sm">{t('trimModeDurationEnd')}</span>
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">{t('durationLabel')}</label>
-                                        <Input type="text" placeholder={t('durationPlaceholder')} value={trimDuration} onChange={(e) => setTrimDuration(e.target.value)} />
-                                    </div>
+
+                                    {/* Fields for Start + Duration mode */}
+                                    {trimMode === 'startDuration' && (
+                                        <>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">{t('startTimeLabel')}</label>
+                                                <Input type="text" placeholder="0" value={trimStart} onChange={(e) => setTrimStart(e.target.value)} />
+                                                <p className="text-xs text-muted">{t('startTimeHint')}</p>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">{t('durationLabel')}</label>
+                                                <Input type="text" placeholder={t('durationPlaceholder')} value={trimDuration} onChange={(e) => setTrimDuration(e.target.value)} />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* Fields for Duration + End mode */}
+                                    {trimMode === 'durationEnd' && (
+                                        <>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">{t('durationFromEndLabel')}</label>
+                                                <Input type="text" placeholder={t('durationFromEndPlaceholder')} value={trimDuration} onChange={(e) => setTrimDuration(e.target.value)} />
+                                                <p className="text-xs text-muted">{t('durationFromEndHint')}</p>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">{t('endTimeLabel')}</label>
+                                                <Input type="text" placeholder="0" value={trimEnd} onChange={(e) => setTrimEnd(e.target.value)} />
+                                                <p className="text-xs text-muted">{t('endTimeHint')}</p>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </div>

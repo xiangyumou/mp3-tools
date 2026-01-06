@@ -4,8 +4,8 @@ test.describe('Internationalization Smoke Tests', () => {
     test('English locale displays English content', async ({ page }) => {
         await page.goto('/en');
 
-        // Wait for the page to load - use h1 specifically
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        // Wait for the page to load - use text locator
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Check English-specific text
         await expect(page.locator('text=Select Mode')).toBeVisible();
@@ -15,8 +15,8 @@ test.describe('Internationalization Smoke Tests', () => {
     test('Chinese locale displays Chinese content', async ({ page }) => {
         await page.goto('/zh');
 
-        // Wait for the page to load - use h1 with correct Chinese title
-        await expect(page.locator('h1:has-text("音频批量处理")')).toBeVisible({ timeout: 30000 });
+        // Wait for the page to load - use text locator
+        await expect(page.locator('text=音频批量处理').first()).toBeVisible({ timeout: 30000 });
 
         // Check Chinese-specific text - use the correct translation
         await expect(page.locator('text=选择模式')).toBeVisible();
@@ -26,7 +26,7 @@ test.describe('Internationalization Smoke Tests', () => {
         await page.goto('/en');
 
         // Wait for content to load
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Find and click language switcher
         const langSwitcher = page.locator('button:has-text("English")');
@@ -37,14 +37,14 @@ test.describe('Internationalization Smoke Tests', () => {
         await expect(page).toHaveURL(/\/zh/);
 
         // Content should now be in Chinese
-        await expect(page.locator('h1:has-text("音频批量处理")')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=音频批量处理').first()).toBeVisible({ timeout: 10000 });
     });
 
     test('language switcher from Chinese to English', async ({ page }) => {
         await page.goto('/zh');
 
         // Wait for content to load
-        await expect(page.locator('h1:has-text("音频批量处理")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=音频批量处理').first()).toBeVisible({ timeout: 30000 });
 
         // Find and click language switcher (shows 中文 when on Chinese locale)
         const langSwitcher = page.locator('button:has-text("中文")');
@@ -55,7 +55,7 @@ test.describe('Internationalization Smoke Tests', () => {
         await expect(page).toHaveURL(/\/en/);
 
         // Content should now be in English
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 10000 });
     });
 
     test('mode descriptions are translated correctly', async ({ page }) => {

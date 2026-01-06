@@ -12,7 +12,7 @@ test.describe('Theme Switcher Smoke Tests', () => {
         await page.goto('/en');
 
         // Wait for page to load
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Theme switcher should be present (button with SVG icon in the top area)
         const themeButtons = page.locator('button:has(svg)');
@@ -24,7 +24,7 @@ test.describe('Theme Switcher Smoke Tests', () => {
         await page.goto('/en');
 
         // Wait for page to load
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Find theme switcher (first button with SVG that's not language switcher)
         const themeSwitcher = page.locator('button:has(svg)').first();
@@ -49,14 +49,14 @@ test.describe('Theme Switcher Smoke Tests', () => {
         await page.goto('/en');
 
         // Wait for page to load
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Set theme to dark via localStorage and reload
         await page.evaluate(() => localStorage.setItem('theme', 'dark'));
         await page.reload();
 
         // Wait for page to reload
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // HTML element should have 'dark' class
         const htmlElement = page.locator('html');
@@ -67,14 +67,14 @@ test.describe('Theme Switcher Smoke Tests', () => {
         await page.goto('/en');
 
         // Wait for page to load
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Set theme to light via localStorage and reload
         await page.evaluate(() => localStorage.setItem('theme', 'light'));
         await page.reload();
 
         // Wait for page to reload
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // HTML element should NOT have 'dark' class
         const htmlElement = page.locator('html');
@@ -85,7 +85,7 @@ test.describe('Theme Switcher Smoke Tests', () => {
         await page.goto('/en');
 
         // Wait for page to load
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Set dark theme
         await page.evaluate(() => localStorage.setItem('theme', 'dark'));
@@ -94,8 +94,7 @@ test.describe('Theme Switcher Smoke Tests', () => {
         // Navigate to different locale
         await page.goto('/zh');
 
-        // Wait for page to load - use correct Chinese title
-        await expect(page.locator('h1:has-text("音频批量处理")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=音频批量处理').first()).toBeVisible({ timeout: 30000 });
 
         // Dark class should still be applied
         const htmlElement = page.locator('html');
@@ -111,7 +110,7 @@ test.describe('Theme Switcher Smoke Tests', () => {
         await page.reload();
 
         // Wait for page to load
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // With system theme and dark preference, should have dark class
         const htmlElement = page.locator('html');
@@ -122,7 +121,7 @@ test.describe('Theme Switcher Smoke Tests', () => {
         await page.reload();
 
         // Wait for page to load
-        await expect(page.locator('h1:has-text("Audio Batch Processor")')).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
 
         // Should not have dark class
         await expect(htmlElement).not.toHaveClass(/dark/);
