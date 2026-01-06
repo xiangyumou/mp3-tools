@@ -2,9 +2,7 @@ version: '3'
 
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/xiangyumou/mp3-tools:latest
     container_name: mp3-tools-web
     ports:
       - "3000:3000"
