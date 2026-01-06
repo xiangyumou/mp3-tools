@@ -1,12 +1,12 @@
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import dynamic from 'next/dynamic';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 const AudioProcessor = dynamic(() => import('@/components/AudioProcessor'), { ssr: false });
 
-export default function Home() {
-    const t = useTranslations('AudioProcessor');
+export default async function Home({ params: { locale } }: { params: { locale: string } }) {
+    const t = await getTranslations({ locale, namespace: 'AudioProcessor' });
 
     return (
         <main className="min-h-screen p-8 md:p-24 bg-background relative">
@@ -27,3 +27,4 @@ export default function Home() {
         </main>
     )
 }
+
