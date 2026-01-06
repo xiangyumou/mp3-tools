@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   web:
     image: ghcr.io/xiangyumou/mp3-tools:latest
