@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Images unoptimization is required for static export unless using a loader
+  // Images unoptimization is required for static export unless using a loader
   images: {
-    unoptimized: true
+    // unoptimized: true // Enabled image optimization
   },
   async headers() {
     return [

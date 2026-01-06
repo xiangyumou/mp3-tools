@@ -11,6 +11,36 @@ import { Loader2, Download, FileAudio, Play, ChevronLeft, ChevronRight, RotateCc
 
 type Mode = 'concat' | 'trim' | 'both';
 
+
+
+const ModeCard = ({
+    modeType,
+    icon: Icon,
+    title,
+    description,
+    currentMode,
+    onSelect
+}: {
+    modeType: Mode,
+    icon: React.ElementType,
+    title: string,
+    description: string,
+    currentMode: Mode | null,
+    onSelect: (m: Mode) => void
+}) => (
+    <button
+        onClick={() => onSelect(modeType)}
+        className={cn(
+            "flex flex-col items-center p-6 rounded-xl border-2 transition-all hover:border-primary/50 text-left w-full",
+            currentMode === modeType ? "border-primary bg-primary/5" : "border-border bg-surface"
+        )}
+    >
+        <Icon className={cn("w-10 h-10 mb-4", currentMode === modeType ? "text-primary" : "text-muted")} />
+        <h3 className="font-medium text-text mb-1">{title}</h3>
+        <p className="text-sm text-muted text-center">{description}</p>
+    </button>
+);
+
 export default function AudioProcessor() {
     const t = useTranslations('AudioProcessor');
 
@@ -48,7 +78,7 @@ export default function AudioProcessor() {
     useEffect(() => {
         const load = async () => {
             setIsLoading(true);
-            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
             const ffmpeg = ffmpegRef.current;
 
             ffmpeg.on('log', ({ message }) => {
@@ -189,20 +219,6 @@ export default function AudioProcessor() {
         setCurrentStep(5);
     };
 
-    const ModeCard = ({ modeType, icon: Icon, title, description }: { modeType: Mode, icon: React.ElementType, title: string, description: string }) => (
-        <button
-            onClick={() => setMode(modeType)}
-            className={cn(
-                "flex flex-col items-center p-6 rounded-xl border-2 transition-all hover:border-primary/50 text-left w-full",
-                mode === modeType ? "border-primary bg-primary/5" : "border-border bg-surface"
-            )}
-        >
-            <Icon className={cn("w-10 h-10 mb-4", mode === modeType ? "text-primary" : "text-muted")} />
-            <h3 className="font-medium text-text mb-1">{title}</h3>
-            <p className="text-sm text-muted text-center">{description}</p>
-        </button>
-    );
-
     const renderStep = () => {
         switch (currentStep) {
             case 1:
@@ -218,18 +234,24 @@ export default function AudioProcessor() {
                                 icon={Music}
                                 title={t('concatMode')}
                                 description={t('concatModeDesc')}
+                                currentMode={mode}
+                                onSelect={setMode}
                             />
                             <ModeCard
                                 modeType="trim"
                                 icon={Scissors}
                                 title={t('trimMode')}
                                 description={t('trimModeDesc')}
+                                currentMode={mode}
+                                onSelect={setMode}
                             />
                             <ModeCard
                                 modeType="both"
                                 icon={Combine}
                                 title={t('bothMode')}
                                 description={t('bothModeDesc')}
+                                currentMode={mode}
+                                onSelect={setMode}
                             />
                         </div>
                     </div>
