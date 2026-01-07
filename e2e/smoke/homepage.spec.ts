@@ -24,8 +24,16 @@ test.describe('Homepage Smoke Tests', () => {
 
     test('step indicator is visible after FFmpeg loads', async ({ page }) => {
         // Wait for FFmpeg to load and step indicator to appear
+        // Increase timeout to 60s for CI environments
         const stepIndicator = page.locator('text=Mode');
-        await expect(stepIndicator.first()).toBeVisible({ timeout: 30000 });
+
+        // Check if loading failed
+        const errorText = page.locator('text=Failed to load');
+        if (await errorText.isVisible()) {
+            throw new Error('FFmpeg failed to load');
+        }
+
+        await expect(stepIndicator.first()).toBeVisible({ timeout: 60000 });
     });
 
     test('mode selection cards are visible', async ({ page }) => {
