@@ -49,7 +49,6 @@ export default function AudioProcessor() {
     const [loaded, setLoaded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const ffmpegRef = useRef(new FFmpeg());
-    const logsContainerRef = useRef<HTMLDivElement | null>(null);
 
     // Wizard state
     const [currentStep, setCurrentStep] = useState(1);
@@ -70,7 +69,6 @@ export default function AudioProcessor() {
     const [processedFiles, setProcessedFiles] = useState<{ name: string, url: string }[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
-    const [logs, setLogs] = useState<string[]>([]);
 
     const steps: Step[] = useMemo(() => [
         { id: 1, title: t('step1Title') },
@@ -85,16 +83,8 @@ export default function AudioProcessor() {
             setIsLoading(true);
             const ffmpeg = ffmpegRef.current;
 
-            ffmpeg.on('log', ({ message }) => {
-                // Only keep meaningful log messages (filter out empty or very short ones)
-                if (message && message.trim().length > 0) {
-                    const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
-                    setLogs(prev => {
-                        const newLogs = [...prev, `[${timestamp}] ${message}`];
-                        // Keep only last 100 logs to prevent memory issues
-                        return newLogs.slice(-100);
-                    });
-                }
+            ffmpeg.on('log', () => {
+                // FFmpeg logs are silenced in production
             });
 
             try {
@@ -114,13 +104,6 @@ export default function AudioProcessor() {
 
         load();
     }, [t]);
-
-    // Auto-scroll logs to bottom
-    useEffect(() => {
-        if (logsContainerRef.current) {
-            logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
-        }
-    }, [logs]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -222,7 +205,6 @@ export default function AudioProcessor() {
         setProcessedFiles([]);
         setCurrentFileIndex(0);
         setSelectedFiles(new Set());
-        setLogs([]);
     };
 
     const toggleFileSelection = (index: number) => {
@@ -265,7 +247,6 @@ export default function AudioProcessor() {
         setIsProcessing(true);
         setProgress(0);
         setProcessedFiles([]);
-        setLogs([]);
         const ffmpeg = ffmpegRef.current;
 
         const results: { name: string, url: string }[] = [];
@@ -581,18 +562,6 @@ export default function AudioProcessor() {
                                 <span>{progress}%</span>
                             </div>
                             <Progress value={progress} />
-                            <div
-                                ref={logsContainerRef}
-                                className="text-xs text-muted font-mono h-32 overflow-y-auto bg-surface2 p-3 rounded-lg border space-y-1"
-                            >
-                                {logs.length === 0 ? (
-                                    <p className="text-muted/50">{t('logsPlaceholder')}</p>
-                                ) : (
-                                    logs.map((log, index) => (
-                                        <p key={index} className="break-all">{log}</p>
-                                    ))
-                                )}
-                            </div>
                         </div>
                     </div>
                 );

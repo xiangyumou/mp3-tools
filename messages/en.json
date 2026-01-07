@@ -56,7 +56,6 @@
         "prevButton": "Back",
         "processButton": "Start",
         "startOver": "Restart",
-        "logsPlaceholder": "Logs...",
         "selectAll": "Select All",
         "downloadSelected": "Download Selected"
     },

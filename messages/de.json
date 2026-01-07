@@ -56,7 +56,6 @@
         "prevButton": "Zurück",
         "processButton": "Start",
         "startOver": "Neustart",
-        "logsPlaceholder": "Logs...",
         "selectAll": "Alle auswählen",
         "downloadSelected": "Ausgewählte laden"
     },
