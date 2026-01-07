@@ -70,7 +70,7 @@ describe('ThemeSwitcher Component', () => {
             await user.click(button);
 
             // system -> light (index 2 -> 0 after cycling)
-            expect(setThemeMock).toHaveBeenCalled();
+            expect(setThemeMock).toHaveBeenCalledWith('light');
         });
     });
 
