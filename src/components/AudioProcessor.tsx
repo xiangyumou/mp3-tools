@@ -4,10 +4,10 @@ import { useTranslations } from 'next-intl';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { toBlobURL, fetchFile } from '@ffmpeg/util';
-import { Button, Input, Card, CardContent, CardHeader, CardTitle, Progress, StepIndicator, Step } from '@/components/ui/simple-ui';
+import { Button, Input, Card, CardContent, CardHeader, CardTitle, Progress, StepIndicator, Step, Checkbox } from '@/components/ui/simple-ui';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Loader2, Download, FileAudio, Play, ChevronLeft, ChevronRight, RotateCcw, Upload, Scissors, Music } from 'lucide-react';
+import { Loader2, Download, FileAudio, ChevronLeft, ChevronRight, RotateCcw, Upload, Scissors, Music } from 'lucide-react';
 
 type Mode = 'concat' | 'trim';
 type TrimMode = 'startDuration' | 'durationEnd';
@@ -69,6 +69,7 @@ export default function AudioProcessor() {
     const [currentFileIndex, setCurrentFileIndex] = useState(0);
     const [processedFiles, setProcessedFiles] = useState<{ name: string, url: string }[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
 
     const steps: Step[] = useMemo(() => [
         { id: 1, title: t('step1Title') },
@@ -158,6 +159,41 @@ export default function AudioProcessor() {
         setProgress(0);
         setProcessedFiles([]);
         setCurrentFileIndex(0);
+        setSelectedFiles(new Set());
+    };
+
+    const toggleFileSelection = (index: number) => {
+        setSelectedFiles(prev => {
+            const next = new Set(prev);
+            if (next.has(index)) {
+                next.delete(index);
+            } else {
+                next.add(index);
+            }
+            return next;
+        });
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedFiles.size === processedFiles.length) {
+            setSelectedFiles(new Set());
+        } else {
+            setSelectedFiles(new Set(processedFiles.map((_, i) => i)));
+        }
+    };
+
+    const downloadSelected = () => {
+        selectedFiles.forEach(index => {
+            const file = processedFiles[index];
+            if (file) {
+                const link = document.createElement('a');
+                link.href = file.url;
+                link.download = file.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
     };
 
     const processFiles = async () => {
@@ -243,7 +279,7 @@ export default function AudioProcessor() {
 
             const data = await ffmpeg.readFile(outputName);
             const url = URL.createObjectURL(new Blob([data as unknown as BlobPart], { type: 'audio/mp3' }));
-            results.push({ name: `processed_${file.name}`, url });
+            results.push({ name: file.name, url });
 
             await ffmpeg.deleteFile(inputName);
             try { await ffmpeg.deleteFile(outputName); } catch { /* Ignore cleanup errors */ }
@@ -457,19 +493,50 @@ export default function AudioProcessor() {
                             <p className="text-muted text-sm">{t('step5Description')}</p>
                         </div>
                         <div className="max-w-2xl mx-auto">
-                            <div className="grid gap-2 max-h-60 overflow-y-auto">
+                            {/* Header with select all and download selected */}
+                            <div className="flex items-center justify-between p-3 bg-surface2 rounded-t-lg border border-b-0">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <Checkbox
+                                        checked={selectedFiles.size === processedFiles.length && processedFiles.length > 0}
+                                        onCheckedChange={toggleSelectAll}
+                                    />
+                                    <span className="text-sm font-medium">{t('selectAll')}</span>
+                                </label>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={downloadSelected}
+                                    disabled={selectedFiles.size === 0}
+                                >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    {t('downloadSelected')} ({selectedFiles.size})
+                                </Button>
+                            </div>
+                            {/* File list */}
+                            <div className="border rounded-b-lg max-h-60 overflow-y-auto">
                                 {processedFiles.map((f, i) => (
-                                    <div key={i} className="flex items-center justify-between bg-surface2 p-3 rounded-lg border">
-                                        <span className="text-sm truncate max-w-[300px] text-text">{f.name}</span>
-                                        <div className="flex gap-2 items-center">
-                                            <audio controls src={f.url} className="h-8" />
-                                            <a href={f.url} download={f.name}>
-                                                <Button size="sm" variant="outline">
-                                                    <Download className="w-4 h-4 mr-2" />
-                                                    {t('download')}
-                                                </Button>
-                                            </a>
+                                    <div
+                                        key={i}
+                                        className={cn(
+                                            "flex items-center justify-between p-3 border-b last:border-b-0 cursor-pointer transition-colors",
+                                            selectedFiles.has(i) ? "bg-primary/5" : "hover:bg-surface2"
+                                        )}
+                                        onClick={() => toggleFileSelection(i)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Checkbox
+                                                checked={selectedFiles.has(i)}
+                                                onCheckedChange={() => toggleFileSelection(i)}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                            <FileAudio className="w-4 h-4 text-muted" />
+                                            <span className="text-sm truncate max-w-[300px]">{f.name}</span>
                                         </div>
+                                        <a href={f.url} download={f.name} onClick={(e) => e.stopPropagation()}>
+                                            <Button size="sm" variant="ghost">
+                                                <Download className="w-4 h-4" />
+                                            </Button>
+                                        </a>
                                     </div>
                                 ))}
                             </div>
@@ -532,7 +599,7 @@ export default function AudioProcessor() {
 
                                 {currentStep === 3 && (
                                     <Button onClick={goNext} disabled={!canProceed() || isProcessing}>
-                                        {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <Play className="mr-2 w-4 h-4" />}
+                                        {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <ChevronRight className="mr-2 w-4 h-4" />}
                                         {t('processButton')}
                                     </Button>
                                 )}

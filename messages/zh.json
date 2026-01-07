@@ -53,7 +53,9 @@
         "prevButton": "上一步",
         "processButton": "开始",
         "startOver": "重来",
-        "logsPlaceholder": "日志..."
+        "logsPlaceholder": "日志...",
+        "selectAll": "全选",
+        "downloadSelected": "下载选中"
     },
     "LanguageSwitcher": {
         "label": "语言"

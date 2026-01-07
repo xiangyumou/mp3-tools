@@ -53,7 +53,9 @@
         "prevButton": "Zurück",
         "processButton": "Start",
         "startOver": "Neustart",
-        "logsPlaceholder": "Logs..."
+        "logsPlaceholder": "Logs...",
+        "selectAll": "Alle auswählen",
+        "downloadSelected": "Ausgewählte laden"
     },
     "LanguageSwitcher": {
         "label": "Sprache"
