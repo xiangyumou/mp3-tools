@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { toBlobURL, fetchFile } from '@ffmpeg/util';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle, Progress, StepIndicator, Step, Checkbox } from '@/components/ui/simple-ui';
@@ -49,7 +49,7 @@ export default function AudioProcessor() {
     const [loaded, setLoaded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const ffmpegRef = useRef(new FFmpeg());
-    const messageRef = useRef<HTMLParagraphElement | null>(null);
+    const logsContainerRef = useRef<HTMLDivElement | null>(null);
 
     // Wizard state
     const [currentStep, setCurrentStep] = useState(1);
@@ -70,6 +70,7 @@ export default function AudioProcessor() {
     const [processedFiles, setProcessedFiles] = useState<{ name: string, url: string }[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
+    const [logs, setLogs] = useState<string[]>([]);
 
     const steps: Step[] = useMemo(() => [
         { id: 1, title: t('step1Title') },
@@ -85,7 +86,15 @@ export default function AudioProcessor() {
             const ffmpeg = ffmpegRef.current;
 
             ffmpeg.on('log', ({ message }) => {
-                if (messageRef.current) messageRef.current.innerHTML = message;
+                // Only keep meaningful log messages (filter out empty or very short ones)
+                if (message && message.trim().length > 0) {
+                    const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+                    setLogs(prev => {
+                        const newLogs = [...prev, `[${timestamp}] ${message}`];
+                        // Keep only last 100 logs to prevent memory issues
+                        return newLogs.slice(-100);
+                    });
+                }
             });
 
             try {
@@ -106,11 +115,64 @@ export default function AudioProcessor() {
         load();
     }, [t]);
 
+    // Auto-scroll logs to bottom
+    useEffect(() => {
+        if (logsContainerRef.current) {
+            logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
+        }
+    }, [logs]);
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFiles(Array.from(e.target.files));
         }
     };
+
+    // Handle paste from clipboard
+    const handlePaste = useCallback((e: React.ClipboardEvent) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        const audioFiles: File[] = [];
+        for (const item of items) {
+            if (item.type.startsWith('audio/')) {
+                const file = item.getAsFile();
+                if (file) audioFiles.push(file);
+            }
+        }
+
+        if (audioFiles.length > 0) {
+            e.preventDefault();
+            setFiles(prev => [...prev, ...audioFiles]);
+            toast.success(`Added ${audioFiles.length} file(s) from clipboard`);
+        }
+    }, []);
+
+    // Handle drag and drop
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+
+        const droppedFiles = e.dataTransfer?.files;
+        if (!droppedFiles) return;
+
+        const audioFiles = Array.from(droppedFiles).filter(f => f.type.startsWith('audio/'));
+        if (audioFiles.length > 0) {
+            setFiles(prev => [...prev, ...audioFiles]);
+        }
+    }, []);
 
     const canProceed = (): boolean => {
         switch (currentStep) {
@@ -160,6 +222,7 @@ export default function AudioProcessor() {
         setProcessedFiles([]);
         setCurrentFileIndex(0);
         setSelectedFiles(new Set());
+        setLogs([]);
     };
 
     const toggleFileSelection = (index: number) => {
@@ -202,6 +265,7 @@ export default function AudioProcessor() {
         setIsProcessing(true);
         setProgress(0);
         setProcessedFiles([]);
+        setLogs([]);
         const ffmpeg = ffmpegRef.current;
 
         const results: { name: string, url: string }[] = [];
@@ -336,12 +400,44 @@ export default function AudioProcessor() {
                                     <h3 className="font-medium">{t('concatenationSection')}</h3>
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium">{t('introFileLabel')}</label>
-                                        <Input type="file" accept="audio/*" onChange={(e) => setIntroFile(e.target.files?.[0] || null)} />
+                                        <label
+                                            className={cn(
+                                                "flex items-center gap-3 p-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors",
+                                                introFile ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 bg-surface"
+                                            )}
+                                        >
+                                            <Upload className={cn("w-5 h-5", introFile ? "text-primary" : "text-muted")} />
+                                            <span className={cn("text-sm truncate flex-1", introFile ? "text-primary" : "text-muted")}>
+                                                {introFile ? introFile.name : t('singleFileDropzone')}
+                                            </span>
+                                            <input
+                                                type="file"
+                                                accept="audio/*"
+                                                onChange={(e) => setIntroFile(e.target.files?.[0] || null)}
+                                                className="hidden"
+                                            />
+                                        </label>
                                         <p className="text-xs text-muted">{t('introFileHint')}</p>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium">{t('outroFileLabel')}</label>
-                                        <Input type="file" accept="audio/*" onChange={(e) => setOutroFile(e.target.files?.[0] || null)} />
+                                        <label
+                                            className={cn(
+                                                "flex items-center gap-3 p-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors",
+                                                outroFile ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 bg-surface"
+                                            )}
+                                        >
+                                            <Upload className={cn("w-5 h-5", outroFile ? "text-primary" : "text-muted")} />
+                                            <span className={cn("text-sm truncate flex-1", outroFile ? "text-primary" : "text-muted")}>
+                                                {outroFile ? outroFile.name : t('singleFileDropzone')}
+                                            </span>
+                                            <input
+                                                type="file"
+                                                accept="audio/*"
+                                                onChange={(e) => setOutroFile(e.target.files?.[0] || null)}
+                                                className="hidden"
+                                            />
+                                        </label>
                                         <p className="text-xs text-muted">{t('outroFileHint')}</p>
                                     </div>
                                 </div>
@@ -415,7 +511,11 @@ export default function AudioProcessor() {
 
             case 3:
                 return (
-                    <div className="space-y-6">
+                    <div
+                        className="space-y-6"
+                        onPaste={handlePaste}
+                        tabIndex={0}
+                    >
                         <div className="text-center mb-8">
                             <h2 className="text-xl font-semibold mb-2">{t('step3Heading')}</h2>
                             <p className="text-muted text-sm">{t('step3Description')}</p>
@@ -425,16 +525,24 @@ export default function AudioProcessor() {
                                 htmlFor="file-upload"
                                 className={cn(
                                     "flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-colors",
-                                    files.length > 0 ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 bg-surface"
+                                    isDragging ? "border-primary bg-primary/10 scale-[1.02]" :
+                                        files.length > 0 ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 bg-surface"
                                 )}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
                             >
-                                <Upload className={cn("w-10 h-10 mb-4", files.length > 0 ? "text-primary" : "text-muted")} />
+                                <Upload className={cn("w-10 h-10 mb-4 transition-transform",
+                                    isDragging ? "text-primary scale-110" :
+                                        files.length > 0 ? "text-primary" : "text-muted"
+                                )} />
                                 {files.length > 0 ? (
                                     <span className="text-primary font-medium">{t('filesSelected', { count: files.length })}</span>
                                 ) : (
-                                    <div className="flex flex-col items-center gap-2">
+                                    <div className="flex flex-col items-center gap-2 text-center px-4">
                                         <span className="text-muted">{t('dropzoneText')}</span>
                                         <Button type="button" variant="secondary" size="sm">{t('selectFileButton')}</Button>
+                                        <span className="text-xs text-muted/70 mt-2">{t('dropzoneMultiHint')}</span>
                                     </div>
                                 )}
                                 <input
@@ -473,8 +581,17 @@ export default function AudioProcessor() {
                                 <span>{progress}%</span>
                             </div>
                             <Progress value={progress} />
-                            <div className="text-xs text-muted font-mono h-24 overflow-y-auto bg-surface2 p-2 rounded-lg border">
-                                <p ref={messageRef}>{t('logsPlaceholder')}</p>
+                            <div
+                                ref={logsContainerRef}
+                                className="text-xs text-muted font-mono h-32 overflow-y-auto bg-surface2 p-3 rounded-lg border space-y-1"
+                            >
+                                {logs.length === 0 ? (
+                                    <p className="text-muted/50">{t('logsPlaceholder')}</p>
+                                ) : (
+                                    logs.map((log, index) => (
+                                        <p key={index} className="break-all">{log}</p>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
