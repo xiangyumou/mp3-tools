@@ -11,6 +11,7 @@ export default defineConfig({
         baseURL: 'http://localhost:3000',
         trace: 'on-first-retry',
     },
+    timeout: 90 * 1000,
     projects: [
         {
             name: 'smoke',

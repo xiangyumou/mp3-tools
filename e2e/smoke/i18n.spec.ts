@@ -12,8 +12,8 @@ test.describe('Internationalization Smoke Tests', () => {
         }
         await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 60000 });
 
-        // Check English-specific text
-        await expect(page.locator('text=Select Mode')).toBeVisible();
+        // Check English-specific text. This appears after FFmpeg loads.
+        await expect(page.locator('text=Select Mode')).toBeVisible({ timeout: 60000 });
         await expect(page.locator('h3:has-text("Add Intro/Outro")').first()).toBeVisible();
     });
 
@@ -23,8 +23,8 @@ test.describe('Internationalization Smoke Tests', () => {
         // Wait for the page to load - use text locator with increased timeout
         await expect(page.locator('text=音频批量处理').first()).toBeVisible({ timeout: 60000 });
 
-        // Check Chinese-specific text - use the correct translation
-        await expect(page.locator('text=选择模式')).toBeVisible();
+        // Check Chinese-specific text - use the correct translation. This appears after FFmpeg loads.
+        await expect(page.locator('text=选择模式')).toBeVisible({ timeout: 60000 });
     });
 
     test('language switcher toggles between English and Chinese', async ({ page }) => {
@@ -68,13 +68,13 @@ test.describe('Internationalization Smoke Tests', () => {
         await page.goto('/en');
         // Wait for FFmpeg to load first
         await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 60000 });
-        await expect(page.locator('p:has-text("Append audio to start/end")').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('p:has-text("Append audio to start/end")').first()).toBeVisible({ timeout: 60000 });
 
         // Check Chinese - use correct translation
         await page.goto('/zh');
         // Wait for FFmpeg to load first
         await expect(page.locator('text=音频批量处理').first()).toBeVisible({ timeout: 60000 });
-        await expect(page.locator('p:has-text("前后添加音频")').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('p:has-text("前后添加音频")').first()).toBeVisible({ timeout: 60000 });
     });
 
     test('URL structure maintains locale', async ({ page }) => {
