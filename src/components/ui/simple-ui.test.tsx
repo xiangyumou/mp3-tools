@@ -55,29 +55,40 @@ describe('Button Component', () => {
     });
 
     describe('sizes', () => {
+        // Note: Components now use responsive sizing (mobile-first)
+        // Mobile: h-12 (48px), Desktop: sm:h-9 (36px)
         it('renders default size correctly', () => {
             render(<Button size="default">Default</Button>);
             const button = screen.getByRole('button', { name: 'Default' });
-            expect(button).toHaveClass('h-9');
+            // Mobile-first: h-12 is the base, sm:h-9 for desktop
+            expect(button).toHaveClass('h-12');
+            expect(button).toHaveClass('sm:h-9');
         });
 
         it('renders small size correctly', () => {
             render(<Button size="sm">Small</Button>);
             const button = screen.getByRole('button', { name: 'Small' });
-            expect(button).toHaveClass('h-8');
+            // Mobile: h-10, Desktop: sm:h-8
+            expect(button).toHaveClass('h-10');
+            expect(button).toHaveClass('sm:h-8');
         });
 
         it('renders large size correctly', () => {
             render(<Button size="lg">Large</Button>);
             const button = screen.getByRole('button', { name: 'Large' });
-            expect(button).toHaveClass('h-10');
+            // Mobile: h-12, Desktop: sm:h-10
+            expect(button).toHaveClass('h-12');
+            expect(button).toHaveClass('sm:h-10');
         });
 
         it('renders icon size correctly', () => {
             render(<Button size="icon">Icon</Button>);
             const button = screen.getByRole('button', { name: 'Icon' });
-            expect(button).toHaveClass('h-9');
-            expect(button).toHaveClass('w-9');
+            // Mobile: h-12 w-12, Desktop: sm:h-9 sm:w-9
+            expect(button).toHaveClass('h-12');
+            expect(button).toHaveClass('w-12');
+            expect(button).toHaveClass('sm:h-9');
+            expect(button).toHaveClass('sm:w-9');
         });
     });
 
@@ -129,7 +140,9 @@ describe('Input Component', () => {
     it('applies correct base styles', () => {
         render(<Input data-testid="test-input" />);
         const input = screen.getByTestId('test-input');
-        expect(input).toHaveClass('flex', 'h-9', 'w-full', 'rounded-md');
+        // Mobile-first: h-12 base, sm:h-9 for desktop
+        expect(input).toHaveClass('flex', 'h-12', 'w-full', 'rounded-md');
+        expect(input).toHaveClass('sm:h-9');
     });
 
     it('handles disabled state', () => {
@@ -283,7 +296,8 @@ describe('StepIndicator Component', () => {
     it('renders connector lines between steps', () => {
         const { container } = render(<StepIndicator steps={steps} currentStep={2} />);
         // Should have 2 connector lines for 3 steps
-        const connectors = container.querySelectorAll('.w-12.h-0\\.5');
+        // Mobile: w-6, Desktop: sm:w-12
+        const connectors = container.querySelectorAll('.w-6.h-0\\.5');
         expect(connectors.length).toBe(2);
     });
 

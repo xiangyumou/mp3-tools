@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 // Variants: default, secondary, ghost, outline, destructive, link
 // Sizes: sm (32px), default (36px), lg (40px), icon variants
 
+// SOP: 5.1 Button - Mobile touch target ≥ 48px
 const buttonVariants = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.99]"
 
 export interface ButtonProps
@@ -29,10 +30,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         if (variant === "link") variantClass = "text-primary underline-offset-4 hover:underline"
 
         let sizeClass = ""
-        if (size === "default") sizeClass = "h-9 px-4 py-2" // SOP: 36px
-        if (size === "sm") sizeClass = "h-8 rounded-md px-3" // SOP: 32px
-        if (size === "lg") sizeClass = "h-10 rounded-md px-8" // SOP: 40px
-        if (size === "icon") sizeClass = "h-9 w-9" // SOP: 36px
+        // SOP: Mobile touch targets ≥ 48px (h-12), desktop can use smaller sizes
+        if (size === "default") sizeClass = "h-12 sm:h-9 px-4 py-2" // Mobile: 48px, Desktop: 36px
+        if (size === "sm") sizeClass = "h-10 sm:h-8 rounded-md px-3" // Mobile: 40px, Desktop: 32px
+        if (size === "lg") sizeClass = "h-12 sm:h-10 rounded-md px-8" // Mobile: 48px, Desktop: 40px
+        if (size === "icon") sizeClass = "h-12 w-12 sm:h-9 sm:w-9" // Mobile: 48px, Desktop: 36px
 
         return (
             <Comp
@@ -54,7 +56,9 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
             <input
                 type={type}
                 className={cn(
-                    "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 file:mr-4 file:py-0 file:px-2 file:rounded-sm file:border file:border-input file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/80",
+                    // SOP: 4.3 Mobile Constraints - font-size 16px to prevent iOS auto-zoom
+                    // SOP: Mobile touch target h-12 (48px)
+                    "flex h-12 sm:h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base sm:text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 file:mr-4 file:py-0 file:px-2 file:rounded-sm file:border file:border-input file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/80",
                     className
                 )}
                 ref={ref}
@@ -142,7 +146,8 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ steps, currentStep, class
                         <div className="flex flex-col items-center">
                             <div
                                 className={cn(
-                                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all",
+                                    // SOP: Mobile touch target ≥ 48px
+                                    "w-10 h-10 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all",
                                     isCompleted && "bg-primary border-primary text-primary-foreground",
                                     isCurrent && "border-primary text-primary bg-transparent",
                                     !isCompleted && !isCurrent && "border-muted text-muted bg-transparent"
@@ -156,9 +161,10 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ steps, currentStep, class
                                     step.id
                                 )}
                             </div>
+                            {/* SOP: Hide text on mobile to prevent crowding */}
                             <span
                                 className={cn(
-                                    "mt-2 text-xs font-medium max-w-[80px] text-center",
+                                    "mt-2 text-xs font-medium max-w-[80px] text-center hidden sm:block",
                                     isCurrent ? "text-primary" : "text-muted"
                                 )}
                             >
@@ -166,11 +172,11 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ steps, currentStep, class
                             </span>
                         </div>
 
-                        {/* Connector line */}
+                        {/* Connector line - shorter on mobile */}
                         {!isLast && (
                             <div
                                 className={cn(
-                                    "w-12 h-0.5 mx-2 mb-6",
+                                    "w-6 sm:w-12 h-0.5 mx-1 sm:mx-2 mb-0 sm:mb-6",
                                     isCompleted ? "bg-primary" : "bg-border"
                                 )}
                             />

@@ -52,7 +52,7 @@ export default function ThemeSwitcher() {
     };
 
     return (
-        <Button variant="ghost" size="sm" onClick={cycleTheme} className="gap-2">
+        <Button variant="ghost" size="sm" onClick={cycleTheme} className="gap-2" aria-label={t('label')}>
             {getIcon()}
             <span className="hidden sm:inline">{getLabel()}</span>
         </Button>
