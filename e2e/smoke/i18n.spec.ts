@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Internationalization Smoke Tests', () => {
+    test.beforeEach(async ({ page }) => {
+        page.on('console', msg => console.log(`[BROWSER-${msg.type()}] ${msg.text()}`));
+    });
+
     test('English locale displays English content', async ({ page }) => {
         await page.goto('/en');
 
