@@ -61,11 +61,15 @@ test.describe('Internationalization Smoke Tests', () => {
     test('mode descriptions are translated correctly', async ({ page }) => {
         // Check English
         await page.goto('/en');
-        await expect(page.locator('p:has-text("Append audio to start/end")').first()).toBeVisible({ timeout: 30000 });
+        // Wait for FFmpeg to load first
+        await expect(page.locator('text=Audio Batch Processor').first()).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('p:has-text("Append audio to start/end")').first()).toBeVisible({ timeout: 10000 });
 
         // Check Chinese - use correct translation
         await page.goto('/zh');
-        await expect(page.locator('p:has-text("前后添加音频")').first()).toBeVisible({ timeout: 30000 });
+        // Wait for FFmpeg to load first
+        await expect(page.locator('text=音频批量处理').first()).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('p:has-text("前后添加音频")').first()).toBeVisible({ timeout: 10000 });
     });
 
     test('URL structure maintains locale', async ({ page }) => {

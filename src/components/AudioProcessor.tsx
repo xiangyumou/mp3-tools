@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { toBlobURL, fetchFile } from '@ffmpeg/util';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle, Progress, StepIndicator, Step, Checkbox } from '@/components/ui/simple-ui';
@@ -14,33 +14,37 @@ type TrimMode = 'startDuration' | 'durationEnd';
 
 
 
-const ModeCard = ({
+interface ModeCardProps {
+    modeType: Mode;
+    icon: React.ElementType;
+    title: string;
+    description: string;
+    currentMode: Mode | null;
+    onSelect: (m: Mode) => void;
+}
+
+const ModeCard = React.memo(function ModeCard({
     modeType,
     icon: Icon,
     title,
     description,
     currentMode,
     onSelect
-}: {
-    modeType: Mode,
-    icon: React.ElementType,
-    title: string,
-    description: string,
-    currentMode: Mode | null,
-    onSelect: (m: Mode) => void
-}) => (
-    <button
-        onClick={() => onSelect(modeType)}
-        className={cn(
-            "flex flex-col items-center p-6 rounded-xl border-2 transition-all hover:border-primary/50 text-left w-full",
-            currentMode === modeType ? "border-primary bg-primary/5" : "border-border bg-surface"
-        )}
-    >
-        <Icon className={cn("w-10 h-10 mb-4", currentMode === modeType ? "text-primary" : "text-muted")} />
-        <h3 className="font-medium text-text mb-1">{title}</h3>
-        <p className="text-sm text-muted text-center">{description}</p>
-    </button>
-);
+}: ModeCardProps) {
+    return (
+        <button
+            onClick={() => onSelect(modeType)}
+            className={cn(
+                "flex flex-col items-center p-6 rounded-xl border-2 transition-all hover:border-primary/50 text-left w-full",
+                currentMode === modeType ? "border-primary bg-primary/5" : "border-border bg-surface"
+            )}
+        >
+            <Icon className={cn("w-10 h-10 mb-4", currentMode === modeType ? "text-primary" : "text-muted")} />
+            <h3 className="font-medium text-text mb-1">{title}</h3>
+            <p className="text-sm text-muted text-center">{description}</p>
+        </button>
+    );
+});
 
 export default function AudioProcessor() {
     const t = useTranslations('AudioProcessor');
@@ -105,11 +109,11 @@ export default function AudioProcessor() {
         load();
     }, [t]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFiles(Array.from(e.target.files));
         }
-    };
+    }, []);
 
     // Handle paste from clipboard
     const handlePaste = useCallback((e: React.ClipboardEvent) => {
@@ -157,7 +161,7 @@ export default function AudioProcessor() {
         }
     }, []);
 
-    const canProceed = (): boolean => {
+    const canProceed = useCallback((): boolean => {
         switch (currentStep) {
             case 1: return mode !== null;
             case 2:
@@ -174,24 +178,25 @@ export default function AudioProcessor() {
             case 3: return files.length > 0;
             default: return true;
         }
-    };
+    }, [currentStep, mode, files.length]);
 
-    const goNext = () => {
+    const goNext = useCallback(() => {
         if (currentStep === 3) {
             // Start processing
             processFiles();
         } else if (currentStep < 5) {
             setCurrentStep(prev => prev + 1);
         }
-    };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep]);
 
-    const goPrev = () => {
+    const goPrev = useCallback(() => {
         if (currentStep > 1) {
             setCurrentStep(prev => prev - 1);
         }
-    };
+    }, [currentStep]);
 
-    const startOver = () => {
+    const startOver = useCallback(() => {
         setCurrentStep(1);
         setMode(null);
         setFiles([]);
@@ -205,9 +210,9 @@ export default function AudioProcessor() {
         setProcessedFiles([]);
         setCurrentFileIndex(0);
         setSelectedFiles(new Set());
-    };
+    }, []);
 
-    const toggleFileSelection = (index: number) => {
+    const toggleFileSelection = useCallback((index: number) => {
         setSelectedFiles(prev => {
             const next = new Set(prev);
             if (next.has(index)) {
@@ -217,17 +222,19 @@ export default function AudioProcessor() {
             }
             return next;
         });
-    };
+    }, []);
 
-    const toggleSelectAll = () => {
-        if (selectedFiles.size === processedFiles.length) {
-            setSelectedFiles(new Set());
-        } else {
-            setSelectedFiles(new Set(processedFiles.map((_, i) => i)));
-        }
-    };
+    const toggleSelectAll = useCallback(() => {
+        setSelectedFiles(prev => {
+            if (prev.size === processedFiles.length) {
+                return new Set();
+            } else {
+                return new Set(processedFiles.map((_, i) => i));
+            }
+        });
+    }, [processedFiles]);
 
-    const downloadSelected = () => {
+    const downloadSelected = useCallback(() => {
         selectedFiles.forEach(index => {
             const file = processedFiles[index];
             if (file) {
@@ -239,7 +246,7 @@ export default function AudioProcessor() {
                 document.body.removeChild(link);
             }
         });
-    };
+    }, [selectedFiles, processedFiles]);
 
     const processFiles = async () => {
         if (!loaded || !mode) return;

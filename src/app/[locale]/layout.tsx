@@ -13,6 +13,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from "@/components/theme-provider";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 
 export default async function RootLayout({
     children,
@@ -26,6 +27,7 @@ export default async function RootLayout({
     return (
         <html lang={locale} suppressHydrationWarning>
             <body className={inter.className}>
+                <ServiceWorkerRegistration />
                 <NextIntlClientProvider messages={messages} locale={locale}>
                     <ThemeProvider
                         attribute="class"
@@ -41,3 +43,4 @@ export default async function RootLayout({
         </html>
     );
 }
+
